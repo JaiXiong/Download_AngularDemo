@@ -11,6 +11,7 @@ export class DownloadDirective implements OnDestroy {
     //_jobProfileId: string = '';
     private destroy$: Subject<void> = new Subject<void>();
     _loading = false;
+    sendAll: boolean = false;
 
     constructor(private ref: ElementRef, private http: HttpClient) {}
 
@@ -22,12 +23,13 @@ export class DownloadDirective implements OnDestroy {
 
         this._loading = true;
         const token = 
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW4iLCJqdGkiOiJlZmQ3NzdkYS0wNDFmLTQ4MWItYjM5OC0xNmNhOTQxZjQyOGQiLCJleHAiOjE3MzcwNTQ0NzUsImlzcyI6IlRlc3QuY29tIiwiYXVkIjoiVGVzdEF1ZGllbmNlIn0.fwkvSNv26g1fQe2EfPSXEWOHs7DN1pXHfA2Xiiqlavk';
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW4iLCJqdGkiOiI1MmI5ZjNjZi00NzMxLTRjYTAtYjY1MC05MWU0NDJjYjQwYTUiLCJleHAiOjE3MzcwNzUxODgsImlzcyI6IlRlc3QuY29tIiwiYXVkIjoiVGVzdEF1ZGllbmNlIn0.SVAnw2lQTuNWCGSLqp7-LOOnFezUsGSvozhXjXZ7qWc';
         const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-        this.http.get(`http://localhost:5001/api/JobTracker/downloadpdf/${this._jobProfileId}`, { headers, responseType: 'blob' })//{ responseType: 'blob' })
+        this.http.get(`http://localhost:5001/api/JobTracker/downloadcsv/${this._jobProfileId}?include=${this.sendAll}`, { headers, responseType: 'blob' })//{ responseType: 'blob' })
             .pipe(
                 takeUntil(this.destroy$),
-                map(response => new Blob([response], { type: 'application/pdf' })),
+                //map(response => new Blob([response], { type: 'application/pdf' })),
+                map(response => new Blob([response], { type: 'text/csv' })),
             )
             .subscribe((pdf: Blob) => {
               // this.ref.nativeElement.href = window.URL.createObjectURL(pdf);
@@ -36,7 +38,8 @@ export class DownloadDirective implements OnDestroy {
               const url = window.URL.createObjectURL(pdf);
               const a = document.createElement('a');
               a.href = url;
-              a.download = 'download.pdf'; // You can set the file name here
+              //a.download = 'download.pdf'; // You can set the file name here
+              a.download = 'download.csv'; // Set the file name here
               document.body.appendChild(a);
               a.click();
               document.body.removeChild(a);
